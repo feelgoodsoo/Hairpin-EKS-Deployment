@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  selector:
+    matchLabels:
+      app: django-auth
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: django-auth
+    spec:
+      containers:
+        - name: django-auth-app
+          image: woongpang/django-login:latest
+    envFrom:
+      - configMapRef:
+        name: config-db-django
+      - secretRef:
+        name: secret-db
+        ports:
+          - containerPort: 8000
