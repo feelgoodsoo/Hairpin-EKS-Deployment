@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-lb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/group.name: eks-pilsu
+    # SSL setting
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: [your-certificate-arn]
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+spec:
+  ingressClassName: alb
+  rules:
+    - host: jenkins.hairpin.today
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: jenkins
+              port:
+                number: 8080
+    - host: "*.hairpin.today"
+      http:
+        paths:
+        - path: /users
+          pathType: Prefix
+          backend:
+            service:
+              name: service-jango
+              port:
+                number: 80
+        - path: /hairpin/api
+          pathType: Prefix
+          backend:
+            service:
+              name: service-spring
+              port:
+                number: 120
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: service-react
+              port:
+                number: 140
